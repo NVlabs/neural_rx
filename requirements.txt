@@ -1,0 +1,6 @@
+sionna == 0.18.0
+matplotlib
+pandas
+onnx==1.14
+tf2onnx
+polygraphy
