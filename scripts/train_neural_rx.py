@@ -51,8 +51,6 @@ except RuntimeError as e:
     print(e)
 
 import sys
-# only if sionna is not installed
-sys.path.append('../../sionna')
 sys.path.append('../')
 
 from utils import E2E_Model, training_loop, Parameters, load_weights

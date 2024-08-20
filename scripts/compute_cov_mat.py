@@ -52,9 +52,7 @@ try:
 except RuntimeError as e:
     print(e)
 
-# if sionna is not locally installed
 import sys
-sys.path.append('../../sionna')
 sys.path.append('../')
 
 import sionna as sn
