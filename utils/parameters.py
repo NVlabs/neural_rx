@@ -148,8 +148,8 @@ class Parameters:
             tb_config = TBConfig(
                     mcs_index=mcs_index,
                     mcs_table=self.mcs_table,
-                    channel_type="PUSCH",
-                    n_id=self.n_ids[0])
+                    channel_type="PUSCH")
+                    #n_id=self.n_ids[0])
 
             # first user PUSCH config
             pc = PUSCHConfig(
@@ -168,10 +168,10 @@ class Parameters:
                 # set user specific parts
                 p.dmrs.dmrs_port_set = self.dmrs_port_sets[idx]
                 # The following parameters are derived from default.
-                # Uncomment lines if specific configuration is required.
-                #p.n_id = self.n_ids[idx]
-                #p.dmrs.n_id = self.dmrs_nid[idx]
-                #p.n_rnti = self.n_rntis[idx]
+                # Comment lines if specific configuration is not required.
+                p.n_id = self.n_ids[idx]
+                p.dmrs.n_id = self.dmrs_nid[idx]
+                p.n_rnti = self.n_rntis[idx]
                 self.pusch_configs[mcs_list_idx].append(p)
 
         ##############################
@@ -215,7 +215,7 @@ class Parameters:
         for pcs in self.pusch_configs:
             for pc in pcs:
                 pc.carrier.slot_number = self.slot_number
-                
+
         # transmitter is a list of PUSCHTransmitters, one for each MCS
         self.transmitters = []
         for mcs_list_idx in range(len(mcs_list)):
