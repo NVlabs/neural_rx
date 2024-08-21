@@ -1318,7 +1318,8 @@ class CGNNOFDM(Model):
             loss_chest = tf.constant(0.0, dtype=tf.float32)
             if h_hats is not None: # h_hat might not be available
                 for h_hat_ in h_hats:
-                    loss_chest += self._mse(h, h_hat_)
+                    if h is not None:
+                        loss_chest += self._mse(h, h_hat_)
 
             # only focus on active users
             active_tx_chest = expand_to_rank(active_tx,
@@ -1357,27 +1358,27 @@ class NeuralPUSCHReceiver(Layer):
     (y, active_tx, [bits, h, mcs_ue_mask]) :
         Tuple: last two inputs are only for training mode
 
-    y : [batch_size, num_rx, num_rx_ant, num_ofdm_symbols, fft_size], tf.complex
-        The received OFDM resource grid after cyclic prefix removal and FFT.
+        y : [batch_size, num_rx, num_rx_ant, num_ofdm_symbols, fft_size], tf.complex
+            The received OFDM resource grid after cyclic prefix removal and FFT.
 
-    active_tx: [batch_size, num_tx], tf.float
-        Active user mask where each `0` indicates non-active users and `1`
-        indicates an active user.
+        active_tx: [batch_size, num_tx], tf.float
+            Active user mask where each `0` indicates non-active users and `1`
+            indicates an active user.
 
-    bits : list of [[batch_size, num_tx, num_data_symbols*num_bits_per_symbol],
-                    tf.int]
-        Transmitted information (uncoded) bits for each evaluated MCS.
-        Only required for training to compute the loss function.
+        bits : list of [[batch_size, num_tx, num_data_symbols*num_bits_per_symbol],
+                        tf.int]
+            Transmitted information (uncoded) bits for each evaluated MCS.
+            Only required for training to compute the loss function.
 
-    h : [batch_size, num_rx, num_rx_ant, num_tx, num_streams_per_tx,
-        num_ofdm_symbols, fft_size], tf.complex
-        Ground-truth channel impulse response.
-        Only required for training to compute the loss function.
+        h : [batch_size, num_rx, num_rx_ant, num_tx, num_streams_per_tx,
+            num_ofdm_symbols, fft_size], tf.complex
+            Ground-truth channel impulse response.
+            Only required for training to compute the loss function.
 
-    mcs_ue_mask: [batch_size, max_num_tx, len(mcs_index)], tf.int32
-        One-hot mask that specifies the MCS index of each UE for each batch
-        sample. Only required for training to enable UE-specific MCS
-        association.
+        mcs_ue_mask: [batch_size, max_num_tx, len(mcs_index)], tf.int32
+            One-hot mask that specifies the MCS index of each UE for each batch
+            sample. Only required for training to enable UE-specific MCS
+            association.
 
     mcs_arr_eval : list with int elements
         Selects the elements (indices) of the mcs_index array to process.
@@ -1438,7 +1439,7 @@ class NeuralPUSCHReceiver(Layer):
         self._training = training
 
         # init transport block enc/decoder
-        self._tb_encoders = []
+        self._tb_encoders = []   # @TODO encoderS and decoderS
         self._tb_decoders= []
 
         self._num_mcss_supported = len(sys_parameters.mcs_index)
@@ -1565,6 +1566,8 @@ class NeuralPUSCHReceiver(Layer):
             y, active_tx, b, h, mcs_ue_mask  = inputs
             # re-encode bits in training mode to generate labels
             # avoids the need for post-FEC bits as labels
+            if len(mcs_arr_eval)==1 and not isinstance(b, list):
+                b = [b] # generate new list if b is not provided as list
             bits = []
             for idx in range(len(mcs_arr_eval)):
                 bits.append(
@@ -1577,12 +1580,13 @@ class NeuralPUSCHReceiver(Layer):
             # Reshaping `h` to the expected shape and apply precoding matrices
             # [batch size, num_tx, num_ofdm_symbols, num_effective_subcarriers,
             #   2*num_rx_ant]
-            h = self.preprocess_channel_ground_truth(h)
+            if h is not None:
+                h = self.preprocess_channel_ground_truth(h)
 
             # Apply neural receiver and return loss
             losses = self._neural_rx((y, h_hat, active_tx,
                                       bits, h, mcs_ue_mask),
-                                     mcs_arr_eval)
+                                      mcs_arr_eval)
             return losses
 
         else:

@@ -58,7 +58,8 @@ class DataGeneratorAerial(Model):
     (nrx_inputs, bits, b, h) :
         Tuple:
 
-    nrx_inputs: list of [y, h_hat, h, pe, pilot_ind, ls_nn_ind]
+    nrx_inputs: list of [rx_slot_real, rx_slot_imag, h_hat_real, h_hat_imag,
+                         active_dmrs_ports, dmrs_ofdm_pos, dmrs_subcarrier_pos]
         Can be used as input for the NRX.
         The shapes are as follows:
 
@@ -127,7 +128,13 @@ class DataGeneratorAerial(Model):
                                           interpolator=None)
 
         # precoding matrix for effective channel
-        self._w = sys_parameters.transmitters[0]._precoder._w
+        if hasattr(sys_parameters.transmitters[0], "_precoder"):
+            self._w = sys_parameters.transmitters[0]._precoder._w
+        else:
+            self._w = tf.ones([sys_parameters.max_num_tx,
+                               sys_parameters.num_antenna_ports, 1],
+                               tf.complex64)
+
         self._w = insert_dims(self._w, 2, 1)
 
         # Helper to get nearest neighbor interpolation indices
@@ -425,7 +432,7 @@ class DataEvaluator():
 
     Output
     ------
-    (llrs, ber) :
+    (llrs, ber, u_hat) :
         Tuple:
 
     llrs: [batch_size, num_tx, num_coded_bits], tf.float
