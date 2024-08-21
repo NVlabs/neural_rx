@@ -1438,7 +1438,7 @@ class NeuralPUSCHReceiver(Layer):
         self._training = training
 
         # init transport block enc/decoder
-        self._tb_encoders = []  
+        self._tb_encoders = []
         self._tb_decoders= []
 
         self._num_mcss_supported = len(sys_parameters.mcs_index)
@@ -1454,7 +1454,11 @@ class NeuralPUSCHReceiver(Layer):
         # Precoding matrix to post-process the ground-truth channel when
         # training
         #  [num_tx, num_tx_ant, num_layers = 1]
-        self._precoding_mat = sys_parameters.transmitters[0]._precoder._w
+        if hasattr(sys_parameters.transmitters[0], "_precoder"):
+            self._precoding_mat = sys_parameters.transmitters[0]._precoder._w
+        else:
+            self._precoding_mat = tf.ones([sys_parameters.max_num_tx,
+                                           sys_parameters.num_antenna_ports, 1], tf.complex64)
 
         # LS channel estimator
         # rg independent of MCS index
