@@ -90,7 +90,7 @@ We recommend starting with the [Jumpstart NRX Tutorial notebook](notebooks/jumps
 
 [1] S. Cammerer, F. Aït Aoudia, J. Hoydis, A. Oeldemann, A. Roessler, T. Mayer, and A. Keller, "[A Neural Receiver for 5G NR Multi-user MIMO](https://arxiv.org/pdf/2312.02601)", IEEE Workshops (GC Wkshps), Dec. 2023.
 
-[2] R. Wiesmayr, S, Cammerer, F. Aït Aoudia, J. Hoydis, J. Zakrzewski, and Alexander Keller, "[Design of a Standard-Compliant Real-Time Neural Receiver for 5G NR](TODO)", arxiv preprint, 2024.
+[2] R. Wiesmayr, S, Cammerer, F. Aït Aoudia, J. Hoydis, J. Zakrzewski, and Alexander Keller, "[Design of a Standard-Compliant Real-Time Neural Receiver for 5G NR](https://arxiv.org/abs/2409.02912)", arxiv preprint, 2024.
 
 [3] F. Aït Aoudia and J. Hoydis, "[End-to-end Learning for OFDM: From Neural Receivers to Pilotless Communication](https://arxiv.org/pdf/2009.05261)", IEEE Trans on Wireless Commun., 2021.
 
