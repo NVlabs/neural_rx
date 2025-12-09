@@ -2057,17 +2057,25 @@ class NeuralReceiverONNX(Model):
 
     def call(self, inputs):
 
-        y_real, y_imag, h_hat_real, h_hat_imag, \
+        y, h_hat, \
             dmrs_port_mask, dmrs_ofdm_pos, dmrs_subcarrier_pos = inputs
 
-        y = tf.concat((y_real, y_imag), axis=-1)
-        h_hat_p = tf.concat((h_hat_real, h_hat_imag), axis=-1)
+        # original layout:
+        #y = tf.concat((y_real, y_imag), axis=-1)
+        #h_hat_p = tf.concat((h_hat_real, h_hat_imag), axis=-1)
+
+        #y = tf.reshape(tf.transpose(y, (0, 1, 2, 4, 3)), (*y.shape[:3], -1))
+        #h_hat = tf.reshape(tf.transpose(h_hat, (0, 1, 2, 4, 3)), (*h_hat.shape[:3], -1))
+        y = tf.concat((y[...,0], y[...,1]), axis=-1)
+        h_hat = tf.concat((h_hat[...,0], h_hat[...,1]), axis=-1)
 
         # nearest neighbor interpolation of channel estimates
         h_hat, pe = self._preprocessing((y,
-                                         h_hat_p,
+                                         h_hat,
                                          dmrs_ofdm_pos,
                                          dmrs_subcarrier_pos))
+        # todo: use input h_hat directly, no interpolation neede
+        # however, still need to figure out shape and scales
 
         # dummy MCS mask (no support for mixed MCS)
         mcs_ue_mask = tf.ones((1,1,1), tf.float32)
@@ -2089,4 +2097,4 @@ class NeuralReceiverONNX(Model):
         # Sionna defines LLRs with different sign
         llr = -1. * llr
 
-        return llr, h_hat
+        return llr #, h_hat

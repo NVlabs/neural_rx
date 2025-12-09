@@ -114,7 +114,13 @@ pilots = pilots.numpy()
 # generate NRX inputs data for dummy inference of the receiver
 nrx_inputs, bits, u, h = generator(batch_size, 0.)
 
-neural_rx(nrx_inputs);
+# we re-use the previously generated dummy data to infer all input shapes
+rx_slot_r,rx_slot_i,h_hat_r,h_hat_i,dmrs_port_mask,dmrs_ofdm_pos,dmrs_subcarrier_pos = nrx_inputs
+rx_slot = tf.stack((rx_slot_r, rx_slot_i), axis=-1)
+h_hat = tf.stack((h_hat_r, h_hat_i), axis=-1)
+print(rx_slot.shape, h_hat.shape)
+
+neural_rx([rx_slot, h_hat, dmrs_port_mask, dmrs_ofdm_pos, dmrs_subcarrier_pos])
 
 # load weights
 print("Loading pre-trained weights.")
@@ -135,9 +141,6 @@ neural_rx.save(f"../onnx_models/{sys_parameters.label}_tf")
 # Export to ONNX
 ################
 
-# we re-use the previously generated dummy data to infer all input shapes
-rx_slot,_,h_hat,_,dmrs_port_mask,dmrs_ofdm_pos,dmrs_subcarrier_pos = nrx_inputs
-
 s_rx = rx_slot.shape
 s_h = h_hat.shape
 s_dmrs_mask = dmrs_port_mask.shape
@@ -147,14 +150,12 @@ s_dmrs_subc_pos = dmrs_subcarrier_pos.shape
 # activate dynamic shapes by setting shapes to None
 # the dynamic ranges of these dimensions must be specified in 'trtexec' later
 # in our case we target a dynamic number of subcarriers
-s_rx = [1, None, num_ofdm_symbol, num_rx_ant]
-s_h = [1, None, num_tx, num_rx_ant]
+s_rx = [1, None, num_ofdm_symbol, num_rx_ant, 2]
+s_h = [1, None, num_tx, num_rx_ant, 2]
 
 input_signature =[
-    tf.TensorSpec(s_rx, tf.float32, name="rx_slot_real"),
-    tf.TensorSpec(s_rx, tf.float32, name="rx_slot_imag"),
-    tf.TensorSpec(s_h, tf.float32, name="h_hat_real"),
-    tf.TensorSpec(s_h, tf.float32, name="h_hat_imag"),
+    tf.TensorSpec(s_rx, tf.float32, name="rx_slot"),
+    tf.TensorSpec(s_h, tf.float32, name="h_hat"),
     tf.TensorSpec(s_dmrs_mask, tf.float32, name="active_dmrs_ports"),
     tf.TensorSpec(s_dmrs_ofdm_pos, tf.int32, name="dmrs_ofdm_pos"),
     tf.TensorSpec(s_dmrs_subc_pos, tf.int32, name="dmrs_subcarrier_pos"),]
@@ -162,6 +163,7 @@ input_signature =[
 # convert model
 print("---Converting ONNX model---")
 onnx_model, _ = tf2onnx.convert.from_keras(neural_rx, input_signature)
+print(f'Output bits per symbol {sys_parameters.transmitters[0]._num_bits_per_symbol}')
 
 # and save the ONNX model
 print("---Saving ONNX model---")
@@ -204,10 +206,9 @@ trt_command = f'trtexec --fp16 '\
 # add shapes
 for idx,s in enumerate((" --minShapes="," --optShapes="," --maxShapes=")):
     trt_command += s + \
-        f'rx_slot_real:{batch_size}x{num_prbs[idx]*12}x{num_ofdm_symbol}x{num_rx_ant},'\
-        f'rx_slot_imag:{batch_size}x{num_prbs[idx]*12}x{num_ofdm_symbol}x{num_rx_ant},'\
-        f'h_hat_real:{batch_size}x{num_pilots[idx]}x{num_tx}x{num_rx_ant},'\
-        f'h_hat_imag:{batch_size}x{num_pilots[idx]}x{num_tx}x{num_rx_ant}'
+        f'rx_slot:{batch_size}x{num_prbs[idx]*12}x{num_ofdm_symbol}x{num_rx_ant}x2,'\
+        f'h_hat:{batch_size}x{num_pilots[idx]}x{num_tx}x{num_rx_ant}x2'
+trt_command += f' --inputIOFormats=fp16:chw,fp16:chw,fp16:chw,int32:chw,int32:chw --outputIOFormats=fp16:chw'
 print(trt_command)
 os.system(trt_command)
 

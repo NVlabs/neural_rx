@@ -72,7 +72,10 @@ class Parameters:
         ###################################
 
         # create parser object and read config file
-        fn = f'../config/{config_name}'
+        if not exists(config_name):
+            fn = f'../config/{config_name}'
+        else:
+            fn = config_name
         if exists(fn):
             config = configparser.RawConfigParser()
             # automatically add fileformat if needed
