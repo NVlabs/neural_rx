@@ -1,0 +1,45 @@
+# Neural_RX Compatibility Update Summary (Sionna 1.x)
+
+This file summarizes the changes made to the `neural_rx` directory to ensure compatibility with Sionna v1.2.1 and Keras 3.
+
+## Key Modifications
+
+1. **Sionna 1.x Import Restructuring**
+   - Migrated all imports from legacy top-level modules to the new subpackage structure:
+     - `sionna.ofdm` -> `sionna.phy.ofdm`
+     - `sionna.nr` -> `sionna.phy.nr`
+     - `sionna.utils` -> `sionna.phy.utils`
+     - `sionna.channel` -> `sionna.phy.channel`
+     - `sionna.mimo` -> `sionna.phy.mimo`
+   - Moved constants like `PI` and `SPEED_OF_LIGHT` to `sionna.phy`.
+   - Updated `BinarySource` location to `sionna.phy.mapping`.
+
+2. **Block Call Signature Updates**
+   - Updated calls to Sionna blocks that no longer accept a single list/tuple of inputs.
+   - Specifically updated `OFDMChannel`, `ApplyOFDMChannel`, `LSChannelEstimator`, and `PUSCHReceiver` to use separate positional or keyword arguments.
+
+3. **Keras 3 Compatibility**
+   - Fixed `ValueError` in model/layer calls by using keyword arguments for non-tensor inputs (e.g., `batch_size`, `ebno_db`, `mcs_arr_eval`).
+   - Keras 3 requires that only input tensors be passed as positional arguments.
+
+4. **Removal of Obsolete Configuration**
+   - Removed all references to `sn.Config.xla_compat`. In Sionna 1.x, XLA is managed directly via standard `@tf.function(jit_compile=True)` decorators.
+
+5. **Robust GPU Handling**
+   - Updated `evaluate.py`, `train_neural_rx.py`, and `compute_cov_mat.py` to check for available GPUs before attempting to set visible devices.
+   - Added automatic fallback to CPU mode if no GPUs are detected.
+
+6. **Flexible Configuration & Pathing**
+   - Modified `neural_rx/utils/parameters.py` to robustly handle config file paths, allowing scripts to be executed from either the root or the `scripts/` directory.
+
+7. **Notebook Synchronization**
+   - Applied import fixes and utility function updates to Jupyter notebooks:
+     - `real_time_nrx.ipynb`
+     - `variable_mcs_nrx.ipynb`
+     - `site_specific_neural_receivers.ipynb`
+
+## Verification Command
+To verify the compatibility from the project root, use:
+```bash
+export PYTHONPATH=$PYTHONPATH:$(pwd)/src:$(pwd)/neural_rx && conda run -n sionna python neural_rx/scripts/evaluate.py -config_name nrx_large_var_mcs_64qam_masking.cfg -num_tx_eval 1 -mcs_arr_eval_idx 0 -eval_nrx_only
+```
