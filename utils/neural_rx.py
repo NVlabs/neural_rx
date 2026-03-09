@@ -15,9 +15,9 @@ import numpy as np
 from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense, Conv2D, SeparableConv2D, Layer
 from tensorflow.nn import relu
-from sionna.utils import flatten_dims, split_dim, flatten_last_dims, insert_dims, expand_to_rank
-from sionna.ofdm import ResourceGridDemapper
-from sionna.nr import TBDecoder, LayerDemapper, PUSCHLSChannelEstimator
+from sionna.phy.utils import flatten_dims, split_dim, flatten_last_dims, insert_dims, expand_to_rank
+from sionna.phy.ofdm import ResourceGridDemapper
+from sionna.phy.nr import TBDecoder, LayerDemapper, PUSCHLSChannelEstimator
 
 class StateInit(Layer):
     # pylint: disable=line-too-long
@@ -1513,7 +1513,7 @@ class NeuralPUSCHReceiver(Layer):
             # [batch_size, num_rx, num_rx_ant, num_tx, num_streams_per_tx,
             #    num_ofdm_symbols, num_effective_subcarriers]
             # Dummy value for N0 as it is not used anyway.
-            h_hat, _ = self._ls_est([y, 1e-1])
+            h_hat, _ = self._ls_est(y, 1e-1)
 
             # Reshaping to the expected shape
             # [batch_size, num_tx, num_effective_subcarriers,
@@ -1584,9 +1584,9 @@ class NeuralPUSCHReceiver(Layer):
                 h = self.preprocess_channel_ground_truth(h)
 
             # Apply neural receiver and return loss
-            losses = self._neural_rx((y, h_hat, active_tx,
+            losses = self._neural_rx(inputs=(y, h_hat, active_tx,
                                       bits, h, mcs_ue_mask),
-                                      mcs_arr_eval)
+                                      mcs_arr_eval=mcs_arr_eval)
             return losses
 
         else:
@@ -1597,8 +1597,8 @@ class NeuralPUSCHReceiver(Layer):
             h_hat = self.estimate_channel(y, num_tx)
 
             llr, h_hat_refined = self._neural_rx(
-                                            (y, h_hat, active_tx),
-                                            [mcs_arr_eval[0]],
+                                            inputs=(y, h_hat, active_tx),
+                                            mcs_arr_eval=[mcs_arr_eval[0]],
                                             mcs_ue_mask_eval=mcs_ue_mask_eval)
 
             # apply TBDecoding

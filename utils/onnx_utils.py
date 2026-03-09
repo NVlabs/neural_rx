@@ -12,13 +12,13 @@
 ##### Utility functions for ONNX export and training in external setups #####
 
 from tensorflow.keras import Model
-from sionna.channel import OFDMChannel, gen_single_sector_topology
-from sionna.utils import BinarySource, ebnodb2no, insert_dims
-from sionna.ofdm import LSChannelEstimator
-from sionna.utils import flatten_dims, flatten_last_dims, compute_ber, hard_decisions, expand_to_rank
+from sionna.phy.channel import OFDMChannel, gen_single_sector_topology
+from sionna.phy.mapping import BinarySource
+from sionna.phy.utils import ebnodb2no, insert_dims, flatten_dims, flatten_last_dims, compute_ber, hard_decisions, expand_to_rank
+from sionna.phy.ofdm import LSChannelEstimator
+from sionna.phy.nr import TBDecoder
 import numpy as np
 import tensorflow as tf
-from sionna.nr import TBDecoder
 
 
 class DataGeneratorAerial(Model):
@@ -359,13 +359,13 @@ class DataGeneratorAerial(Model):
                         indoor_probability=0.) # disable indoor users
             self._sys_parameters.channel_model.set_topology(*topology)
 
-        y, h = self._channel([x, no])
+        y, h = self._channel(x, no)
 
         ####################
         # Channel estimation
         ####################
 
-        h_hat, _ = self._ls_est((y, 0.1)) # no is arbitrary (only for err_var)
+        h_hat, _ = self._ls_est(y, 0.1) # no is arbitrary (only for err_var)
         h = tf.transpose(h, perm=[0,1,3,5,6,2,4])
         # Multiply by precoding matrices to compute effective channels
         # [s, num_rx, num_tx, num_ofdm_symbols,...

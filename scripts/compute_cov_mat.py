@@ -46,18 +46,20 @@ import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
 gpus = tf.config.list_physical_devices('GPU')
-try:
-    print('Only GPU number', args.gpu, 'used.')
-    tf.config.experimental.set_memory_growth(gpus[0], True)
-except RuntimeError as e:
-    print(e)
+if len(gpus)>0:
+    try:
+        print('Only GPU number', args.gpu, 'used.')
+        tf.config.experimental.set_memory_growth(gpus[0], True)
+    except RuntimeError as e:
+        print(e)
+else:
+    print('No GPU found. Running on CPU.')
 
 import sys
 sys.path.append('../')
 
 import sionna as sn
-sn.Config.xla_compat = True
-from sionna.channel import GenerateOFDMChannel, gen_single_sector_topology
+from sionna.phy.channel import GenerateOFDMChannel, gen_single_sector_topology
 
 from utils import Parameters
 import numpy as np

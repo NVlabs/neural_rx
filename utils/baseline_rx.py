@@ -15,9 +15,9 @@ import tensorflow as tf
 from itertools import combinations
 import numpy as np
 
-from sionna.ofdm import LMMSEInterpolator, KBestDetector, LinearDetector, LSChannelEstimator
-from sionna.nr import PUSCHReceiver, TBDecoder, PUSCHTransmitter, PUSCHLSChannelEstimator
-from sionna.utils import flatten_last_dims, split_dim, flatten_dims
+from sionna.phy.ofdm import LMMSEInterpolator, KBestDetector, LinearDetector, LSChannelEstimator
+from sionna.phy.nr import PUSCHReceiver, TBDecoder, PUSCHTransmitter, PUSCHLSChannelEstimator
+from sionna.phy.utils import flatten_last_dims, split_dim, flatten_dims
 
 
 class BaselineReceiver(Layer):
@@ -251,14 +251,13 @@ class BaselineReceiver(Layer):
             return_tb_crc_status=self._return_tb_status
         )
 
-    def call(self, inputs):
+    def call(self, y, no, h=None):
+        no = tf.cast(no, tf.float32)
         if self._sys_parameters.system in ("baseline_perf_csi_kbest",
                                            "baseline_perf_csi_lmmse"):
-            y, h, no = inputs
-            b_hat = self._receiver([y, h, no])
+            b_hat = self._receiver(y, no, h)
         else:
-            y, no = inputs
-            b_hat = self._receiver([y, no])
+            b_hat = self._receiver(y, no)
         return b_hat
 
 # The following LMMSE estimator implementations are used to keep the
@@ -310,8 +309,7 @@ class LowComplexityLMSEEstimator(LSChannelEstimator):
         # static shapes
         self._num_pilots = self._sys_parameters.transmitters[0]._resource_grid.num_pilot_symbols.numpy()
 
-    def call(self, inputs):
-        y, no = inputs
+    def call(self, y, no):
         y_eff = self._removed_nulled_scs(y)
         y_eff_flat = flatten_last_dims(y_eff)
         y_pilots = tf.gather(y_eff_flat, self._pilot_ind, axis=-1)
@@ -408,8 +406,7 @@ class LowComplexityPUSCHLMSEEstimator(PUSCHLSChannelEstimator):
         # static shapes
         self._num_pilots = self._sys_parameters.transmitters[0]._resource_grid.num_pilot_symbols.numpy()
 
-    def call(self, inputs):
-        y, no = inputs
+    def call(self, y, no):
         y_eff = self._removed_nulled_scs(y)
         y_eff_flat = flatten_last_dims(y_eff)
         y_pilots = tf.gather(y_eff_flat, self._pilot_ind, axis=-1)

@@ -44,14 +44,19 @@ import tensorflow as tf
 tf.get_logger().setLevel('ERROR')
 
 gpus = tf.config.list_physical_devices('GPU')
-try:
-    print('Only GPU number', args.gpu, 'used.')
-    tf.config.experimental.set_memory_growth(gpus[0], True)
-except RuntimeError as e:
-    print(e)
+if len(gpus)>0:
+    try:
+        print('Only GPU number', args.gpu, 'used.')
+        tf.config.experimental.set_memory_growth(gpus[0], True)
+    except RuntimeError as e:
+        print(e)
+else:
+    print('No GPU found. Running on CPU.')
 
 import sys
-sys.path.append('../')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))) 
+# Use local sionna repository instead of installed package
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
 
 from utils import E2E_Model, training_loop, Parameters, load_weights
 
@@ -80,7 +85,7 @@ if args.debug:
 #################################################################
 
 sys_training = E2E_Model(sys_parameters, training=True)
-sys_training(1, 1.) # run once to init weights in TensorFlow
+sys_training(batch_size=1, ebno_db=1.) # run once to init weights in TensorFlow
 sys_training.summary()
 
 # load weights if the exists already

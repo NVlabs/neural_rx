@@ -15,10 +15,10 @@ import numpy as np
 import configparser
 import tensorflow as tf
 from os.path import exists
-from sionna.nr import PUSCHConfig, PUSCHDMRSConfig, TBConfig, CarrierConfig, PUSCHTransmitter, PUSCHPilotPattern
-from sionna.channel.tr38901 import PanelArray, UMi, TDL, UMa
-from sionna.mimo import StreamManagement
-from sionna.channel import OFDMChannel, AWGN
+from sionna.phy.nr import PUSCHConfig, PUSCHDMRSConfig, TBConfig, CarrierConfig, PUSCHTransmitter, PUSCHPilotPattern
+from sionna.phy.channel.tr38901 import PanelArray, UMi, TDL, UMa
+from sionna.phy.mimo import StreamManagement
+from sionna.phy.channel import OFDMChannel, AWGN
 from .channel_models import DoubleTDLChannel, DatasetChannel
 from .impairments import FrequencyOffset
 
@@ -72,14 +72,18 @@ class Parameters:
         ###################################
 
         # create parser object and read config file
-        fn = f'../config/{config_name}'
+        if exists(config_name):
+            fn = config_name
+        else:
+            fn = f'../config/{config_name}'
+        
         if exists(fn):
             config = configparser.RawConfigParser()
             # automatically add fileformat if needed
-            config_name.replace(".cfg","") + ".cfg"
+            # config_name.replace(".cfg","") + ".cfg" # This line was buggy anyway
             config.read(fn)
         else:
-            raise FileNotFoundError("Unknown config file.")
+            raise FileNotFoundError(f"Unknown config file: {fn}")
 
         # and import all parameters as attributes
         self.config_str = ""

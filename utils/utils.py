@@ -29,7 +29,7 @@ import sionna as sn
 from .e2e_model import E2E_Model
 from .parameters import Parameters
 
-from sionna.utils import ebnodb2no, expand_to_rank
+from sionna.phy.utils import ebnodb2no, expand_to_rank
 
 def save_weights(system, model_path):
     """Save model weights.
@@ -228,7 +228,6 @@ def training_loop(model, label, filename, training_logdir, training_seed,
     optimizer = tf.keras.optimizers.Adam()
 
     # Enable XLA compatibility when xla==True
-    sn.Config.xla_compat = xla
 
     if mcs_training_snr_db_offset is not None:
         mcs_training_snr_db_offset = tf.constant(mcs_training_snr_db_offset,
@@ -249,6 +248,11 @@ def training_loop(model, label, filename, training_logdir, training_seed,
         print("Constellation is trainable: ", train_tx)
         for tx_ in model._transmitters:
             tx_._mapper.constellation.trainable = train_tx
+
+        # Initialize variables to satisfy AutoGraph
+        loss = tf.constant(0.0)
+        loss_data = tf.constant(0.0)
+        loss_chest = tf.constant(0.0)
 
         for _ in tf.range(100, dtype=tf.int64):
             num_tx = num_tx_sampler(())
@@ -313,7 +317,9 @@ def training_loop(model, label, filename, training_logdir, training_seed,
                 active_dmrs = None
 
             with tf.GradientTape() as tape:
-                loss_data, loss_chest = model(batch_size, snr_db, num_tx,
+                loss_data, loss_chest = model(batch_size=batch_size,
+                                              ebno_db=snr_db,
+                                              num_tx=num_tx,
                                               mcs_ue_mask=mcs_ue_mask,
                                               active_dmrs=active_dmrs)
                 if double_readout:
@@ -351,7 +357,9 @@ def training_loop(model, label, filename, training_logdir, training_seed,
     # Set different mcs_arr_idx as integer to trigger XLA re-tracing.
     @tf.function(jit_compile=xla)
     def eval_model_xla(batch_size, _snr_db, max_num_tx, mcs_arr_idx):
-        loss_data_mcs, _ = model(batch_size, _snr_db, num_tx=max_num_tx,
+        loss_data_mcs, _ = model(batch_size=batch_size,
+                                 ebno_db=_snr_db,
+                                 num_tx=max_num_tx,
                                  mcs_arr_eval_idx=mcs_arr_idx)
         return loss_data_mcs
 
@@ -803,7 +811,7 @@ def export_constellation(config_name, fn="custom_constellation"):
     m = int(np.log2(len(cs)))
     labels = np.zeros((len(cs), m))
     for idx in range(len(cs)):
-        labels[idx,:] = sn.fec.utils.int2bin(idx, m)
+        labels[idx,:] = sn.phy.fec.utils.int2bin(idx, m)
 
     # generate dictionary for export
     r = {}

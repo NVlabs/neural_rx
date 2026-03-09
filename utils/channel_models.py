@@ -14,8 +14,9 @@ from tensorflow.keras.layers import Layer
 import tensorflow as tf
 import numpy as np
 import sionna
-from sionna.channel import GenerateOFDMChannel, ApplyOFDMChannel, ChannelModel
-from sionna.channel.tr38901 import TDL
+from sionna.phy import SPEED_OF_LIGHT
+from sionna.phy.channel import GenerateOFDMChannel, ApplyOFDMChannel, ChannelModel
+from sionna.phy.channel.tr38901 import TDL
 
 def gnb_correlation_matrix(num_ant, alpha):
     assert num_ant in [1,2,4,8]
@@ -112,7 +113,7 @@ class DoubleTDLChannel(tf.keras.layers.Layer):
         # TDL B100 model
         delay_spread_1 = 100e-9
         doppler_spread_1 = 400
-        speed_1 = doppler_spread_1 * sionna.SPEED_OF_LIGHT / carrier_frequency
+        speed_1 = doppler_spread_1 * SPEED_OF_LIGHT / carrier_frequency
         tdl1 = TDL("B100",
            delay_spread_1,
            carrier_frequency,
@@ -125,7 +126,7 @@ class DoubleTDLChannel(tf.keras.layers.Layer):
         # TDL C300 model
         delay_spread_2 = 300e-9
         doppler_spread_2 = 100
-        speed_2 = doppler_spread_2 * sionna.SPEED_OF_LIGHT / carrier_frequency
+        speed_2 = doppler_spread_2 * SPEED_OF_LIGHT / carrier_frequency
         tdl2 = TDL("C300",
            delay_spread_2,
            carrier_frequency,
@@ -147,9 +148,8 @@ class DoubleTDLChannel(tf.keras.layers.Layer):
 
         self._apply_channel = ApplyOFDMChannel()
 
-    def call(self, inputs):
+    def call(self, x, no):
 
-        x, no = inputs
         batch_size = tf.shape(x)[0]
         h1 = self._gen_channel_1(batch_size)
         h2 = self._gen_channel_2(batch_size)
@@ -157,7 +157,7 @@ class DoubleTDLChannel(tf.keras.layers.Layer):
         # stack the two models
         h = tf.concat([h1, h2], axis=3)
 
-        y = self._apply_channel([x, h, no])
+        y = self._apply_channel(x, h, no)
         return y, h
 
 class DatasetChannel(ChannelModel):

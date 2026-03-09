@@ -43,6 +43,8 @@ parser.add_argument("-mcs_arr_eval_idx",
                     help="Select the MCS array index for evaluation. Use -1 to evaluate all MCSs.", type=int, default=-1)
 parser.add_argument("-eval_nrx_only", help="Only evaluate the NN",
                     action="store_true", default=False)
+parser.add_argument("-eval_baseline", help="Specific baseline to evaluate (e.g., baseline_perf_csi_kbest)", type=str, default=None)
+parser.add_argument("-skip_nrx", help="Skip Neural Receiver evaluation", action="store_true", default=False)
 parser.add_argument("-debug", help="Set debugging configuration", action="store_true", default=False)
 
 # Parse all arguments
@@ -57,6 +59,8 @@ gpu = args.gpu
 target_bler = args.target_bler
 num_tx_eval = args.num_tx_eval
 mcs_arr_eval_idx = args.mcs_arr_eval_idx
+eval_baseline = args.eval_baseline
+skip_nrx = args.skip_nrx
 
 distribute = None # use "all" to distribute over multiple GPUs
 
@@ -73,19 +77,21 @@ tf.get_logger().setLevel('ERROR')
 
 gpus = tf.config.list_physical_devices('GPU')
 
-if distribute != "all":
+if distribute != "all" and len(gpus)>0:
     try:
         tf.config.set_visible_devices(gpus[args.gpu], 'GPU')
         print('Only GPU number', args.gpu, 'used.')
         tf.config.experimental.set_memory_growth(gpus[args.gpu], True)
     except RuntimeError as e:
         print(e)
+elif len(gpus)==0:
+    print('No GPU found. Running on CPU.')
 
 import sys
 sys.path.append('../')
 
 import sionna as sn
-from sionna.utils import sim_ber
+from sionna.phy.utils import sim_ber
 from utils import E2E_Model, Parameters, load_weights
 import numpy as np
 import pickle
@@ -154,7 +160,7 @@ print(f"Evaluating for {num_tx_evals} active users and mcs_index elements {mcs_a
 for num_tx_eval in num_tx_evals:
 
     # Generate covariance matrices for LMMSE-based baselines
-    if not eval_nrx_only:
+    if not eval_nrx_only and (eval_baseline is None or "baseline_lmmse" in eval_baseline):
         print("Generating cov matrix.")
         os.system(f"python compute_cov_mat.py -config_name {config_name} -gpu {gpu} -num_samples {num_cov_samples} -num_tx_eval {num_tx_eval}")
 
@@ -164,53 +170,51 @@ for num_tx_eval in num_tx_evals:
         #
         # Neural receiver
         #
-        sn.Config.xla_compat = True
-        sys_parameters = Parameters(config_name,
+        if not skip_nrx:
+            sys_parameters = Parameters(config_name,
                                     training=False,
                                     num_tx_eval=num_tx_eval,
                                     system='nrx')
 
-        # check channel types for consistency
-        if sys_parameters.channel_type == 'TDL-B100':
-            assert num_tx_eval == 1,\
-                    "Channel model 'TDL-B100' only works with one transmitter"
-        elif sys_parameters.channel_type in ("DoubleTDLlow", "DoubleTDLmedium",
-                                            "DoubleTDLhigh"):
-            assert num_tx_eval == 2,\
-                "Channel model 'DoubleTDL' only works with two transmitters exactly"
-        e2e_nn = E2E_Model(sys_parameters, training=False, mcs_arr_eval_idx=mcs_arr_eval_idx)
+            # check channel types for consistency
+            if sys_parameters.channel_type == 'TDL-B100':
+                assert num_tx_eval == 1,\
+                        "Channel model 'TDL-B100' only works with one transmitter"
+            elif sys_parameters.channel_type in ("DoubleTDLlow", "DoubleTDLmedium",
+                                                "DoubleTDLhigh"):
+                assert num_tx_eval == 2,\
+                    "Channel model 'DoubleTDL' only works with two transmitters exactly"
+            e2e_nn = E2E_Model(sys_parameters, training=False, mcs_arr_eval_idx=mcs_arr_eval_idx)
 
-        print("\nRunning: " + sys_parameters.system)
-        #  Run once and load the weights
-        e2e_nn(1, 1.)
-        filename = f'../weights/{sys_parameters.label}_weights'
-        load_weights(e2e_nn, filename)
+            print("\nRunning: " + sys_parameters.system)
+            #  Run once and load the weights
+            e2e_nn(batch_size=1, ebno_db=1.)
+            filename = f'../weights/{sys_parameters.label}_weights'
+            load_weights(e2e_nn, filename)
 
-        # and set number iterations for evaluation
-        e2e_nn._receiver._neural_rx.num_it = sys_parameters.num_nrx_iter_eval
+            # and set number iterations for evaluation
+            e2e_nn._receiver._neural_rx.num_it = sys_parameters.num_nrx_iter_eval
 
-        # Start sim
-        ber, bler = sim_ber(e2e_nn,
-                            graph_mode="xla",
-                            ebno_dbs=ebno_db,
-                            max_mc_iter=max_mc_iter,
-                            num_target_block_errors=num_target_block_errors,
-                            batch_size=batch_size,
-                            distribute=distribute,
-                            target_bler=target_bler,
-                            early_stop=True,
-                            forward_keyboard_interrupt=True)
-        BERs[e2e_nn._sys_name, num_tx_eval, mcs_arr_eval_idx] = ber
-        BLERs[e2e_nn._sys_name, num_tx_eval, mcs_arr_eval_idx] = bler
-        with open(results_filename, "wb") as f:
-            pickle.dump([ebno_db, BERs, BLERs], f)
-        sn.Config.xla_compat = False
+            # Start sim
+            ber, bler = sim_ber(e2e_nn,
+                                graph_mode="xla",
+                                ebno_dbs=ebno_db,
+                                max_mc_iter=max_mc_iter,
+                                num_target_block_errors=num_target_block_errors,
+                                batch_size=batch_size,
+                                distribute=distribute,
+                                target_bler=target_bler,
+                                early_stop=True,
+                                forward_keyboard_interrupt=True)
+            BERs[e2e_nn._sys_name, num_tx_eval, mcs_arr_eval_idx] = ber
+            BLERs[e2e_nn._sys_name, num_tx_eval, mcs_arr_eval_idx] = bler
+            with open(results_filename, "wb") as f:
+                pickle.dump([ebno_db, BERs, BLERs], f)
 
         #
         # Baseline: LS estimation/lin interpolation + LMMSE detection
         #
-        if not eval_nrx_only:
-            sn.Config.xla_compat = True
+        if not eval_nrx_only and (eval_baseline is None or eval_baseline == 'baseline_lslin_lmmse'):
             sys_parameters = Parameters(config_name,
                                         training=False,
                                         num_tx_eval=num_tx_eval,
@@ -233,14 +237,12 @@ for num_tx_eval in num_tx_evals:
             BLERs[e2e_baseline._sys_name, num_tx_eval, mcs_arr_eval_idx] = bler
             with open(results_filename, "wb") as f:
                 pickle.dump([ebno_db, BERs, BLERs], f)
-            sn.Config.xla_compat = False
         else:
             print("skipping LSlin & LMMSE")
         #
         # Baseline: LMMSE estimation/interpolation + K-Best detection
         #
-        if not eval_nrx_only:
-            sn.Config.xla_compat = False
+        if not eval_nrx_only and (eval_baseline is None or eval_baseline == 'baseline_lmmse_kbest'):
             sys_parameters = Parameters(config_name,
                                         training=False,
                                         num_tx_eval=num_tx_eval,
@@ -263,7 +265,6 @@ for num_tx_eval in num_tx_evals:
             BLERs[e2e_baseline._sys_name, num_tx_eval, mcs_arr_eval_idx] = bler
             with open(results_filename, "wb") as f:
                 pickle.dump([ebno_db, BERs, BLERs], f)
-            sn.Config.xla_compat = False
         else:
             print("skipping LMMSE & KBest")
 
@@ -298,7 +299,6 @@ for num_tx_eval in num_tx_evals:
         # Baseline: LMMSE estimation/interpolation + LMMSE detection
         #
         # if not eval_nrx_only:
-        #     sn.Config.xla_compat = False
         #     sys_parameters = Parameters(config_name,
         #                                 training=False,
         #                                 num_tx_eval=num_tx_eval,
@@ -320,7 +320,6 @@ for num_tx_eval in num_tx_evals:
         #     BLERs[e2e_baseline._sys_name, num_tx_eval, mcs_arr_eval_idx] = bler
         #     with open(results_filename, "wb") as f:
         #         pickle.dump([ebno_db, BERs, BLERs], f)
-        #     sn.Config.xla_compat = False
         # else:
         #     print("skipping LMMSE")
         #     sys_name = f"Baseline - LMMSE+LMMSE"
@@ -328,8 +327,7 @@ for num_tx_eval in num_tx_evals:
         #
         # Baseline: Perfect CSI + K-Best detection
         #
-        if not eval_nrx_only:
-            sn.Config.xla_compat = False
+        if not eval_nrx_only and (eval_baseline is None or eval_baseline == 'baseline_perf_csi_kbest'):
             sys_parameters = Parameters(config_name,
                                         training=False,
                                         num_tx_eval=num_tx_eval,
@@ -352,8 +350,5 @@ for num_tx_eval in num_tx_evals:
             BLERs[e2e_baseline._sys_name, num_tx_eval, mcs_arr_eval_idx] = bler
             with open(results_filename, "wb") as f:
                 pickle.dump([ebno_db, BERs, BLERs], f)
-            sn.Config.xla_compat = False
         else:
             print("skipping Perfect CSI & K-Best")
-
-

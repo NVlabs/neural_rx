@@ -12,8 +12,9 @@
 
 import tensorflow as tf
 from tensorflow.keras import Model
-from sionna.channel import gen_single_sector_topology
-from sionna.utils import BinarySource, ebnodb2no, expand_to_rank, log10
+from sionna.phy.channel import gen_single_sector_topology
+from sionna.phy.mapping import BinarySource
+from sionna.phy.utils import ebnodb2no, expand_to_rank, log10
 from .baseline_rx import BaselineReceiver
 from .neural_rx import NeuralPUSCHReceiver
 
@@ -406,10 +407,10 @@ class E2E_Model(Model):
 
         # Apply channel
         if self._sys_parameters.channel_type == "AWGN":
-            y = self._channel([x, no])
+            y = self._channel(x, no)
             h = tf.ones_like(y) # simple AWGN channel
         else:
-            y, h = self._channel([x, no])
+            y, h = self._channel(x, no)
 
         ###################################
         # Receiver
@@ -419,7 +420,7 @@ class E2E_Model(Model):
                                            'baseline_lmmse_lmmse',
                                            'baseline_lsnn_lmmse',
                                            'baseline_lslin_lmmse'):
-            b_hat = self._receiver([y, no])
+            b_hat = self._receiver(y, no)
             if self._return_tb_status:
                 b_hat, tb_crc_status = b_hat
             else:
@@ -436,7 +437,7 @@ class E2E_Model(Model):
                                              'baseline_perf_csi_lmmse'):
 
             # perfect CSI receiver needs ground truth channel
-            b_hat = self._receiver([y, h, no])
+            b_hat = self._receiver(y, no, h)
 
             if self._return_tb_status:
                 b_hat, tb_crc_status = b_hat
@@ -453,8 +454,8 @@ class E2E_Model(Model):
 
             # in training mode, only the losses are required
             if self._training:
-                losses = self._receiver([y, active_dmrs, b, h, mcs_ue_mask],
-                                        mcs_arr_eval)
+                losses = self._receiver(inputs=[y, active_dmrs, b, h, mcs_ue_mask],
+                                        mcs_arr_eval=mcs_arr_eval)
                 return losses
             else:
                 # in inference mode, the neural receiver returns:
@@ -463,8 +464,8 @@ class E2E_Model(Model):
                 # - initial channel estimate h_hat
                 # - [optional] transport block CRC status
                 b_hat, h_hat_refined, h_hat, tb_crc_status = \
-                                self._receiver((y, active_dmrs),
-                                                mcs_arr_eval,
+                                self._receiver(inputs=(y, active_dmrs),
+                                                mcs_arr_eval=mcs_arr_eval,
                                                 mcs_ue_mask_eval=mcs_ue_mask)
 
                 #################################

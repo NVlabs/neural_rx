@@ -12,8 +12,8 @@
 
 from tensorflow.keras.layers import Layer
 import tensorflow as tf
-from sionna.ofdm import OFDMModulator, OFDMDemodulator
-from sionna.constants import PI
+from sionna.phy.ofdm import OFDMModulator, OFDMDemodulator
+from sionna.phy import PI
 
 class FrequencyOffset(Layer):
     """
