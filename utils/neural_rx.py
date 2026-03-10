@@ -87,12 +87,12 @@ class StateInit(Layer):
         # Hidden blocks
         self._hidden_conv = []
         for n in num_units:
-            conv = layer(n, (3,3), padding='same',
+            conv = layer(int(n), (3,3), padding='same',
                          activation='relu', dtype=dtype)
             self._hidden_conv.append(conv)
 
         # Output block
-        self._output_conv = layer(d_s, (3,3), activation=None,
+        self._output_conv = layer(int(d_s), (3,3), activation=None,
                                   padding='same', dtype=dtype)
 
     def call(self, inputs):
@@ -205,8 +205,8 @@ class AggregateUserStates(Layer):
 
         self._hidden_layers = []
         for n in num_units:
-            self._hidden_layers.append(layer(n, activation='relu', dtype=dtype))
-        self._output_layer = layer(d_s, activation=None, dtype=dtype)
+            self._hidden_layers.append(layer(int(n), activation='relu', dtype=dtype))
+        self._output_layer = layer(int(d_s), activation=None, dtype=dtype)
 
     def call(self, inputs):
         r"""
@@ -317,12 +317,12 @@ class UpdateState(Layer):
         # Hidden blocks
         self._hidden_conv = []
         for n in num_units:
-            conv = layer(n, (3,3), padding='same',
+            conv = layer(int(n), (3,3), padding='same',
                          activation="relu", dtype=dtype)
             self._hidden_conv.append(conv)
 
         # Output block
-        self._output_conv = layer(d_s, (3,3), padding='same',
+        self._output_conv = layer(int(d_s), (3,3), padding='same',
                                   activation=None, dtype=dtype)
 
     def call(self, inputs):
@@ -516,9 +516,9 @@ class ReadoutLLRs(Layer):
 
         self._hidden_layers = []
         for n in num_units:
-            self._hidden_layers.append(layer(n, activation='relu', dtype=dtype))
+            self._hidden_layers.append(layer(int(n), activation='relu', dtype=dtype))
 
-        self._output_layer = layer(num_bits_per_symbol,
+        self._output_layer = layer(int(num_bits_per_symbol),
                                    activation=None, dtype=dtype)
 
     def call(self, s):
@@ -587,8 +587,8 @@ class ReadoutChEst(Layer):
 
         self._hidden_layers = []
         for n in num_units:
-            self._hidden_layers.append(layer(n, activation='relu', dtype=dtype))
-        self._output_layer = layer(2*num_rx_ant, activation=None, dtype=dtype)
+            self._hidden_layers.append(layer(int(n), activation='relu', dtype=dtype))
+        self._output_layer = layer(int(2*num_rx_ant), activation=None, dtype=dtype)
 
     def call(self, s):
 

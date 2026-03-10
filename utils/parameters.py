@@ -16,7 +16,7 @@ import configparser
 import tensorflow as tf
 from os.path import exists
 from sionna.phy.nr import PUSCHConfig, PUSCHDMRSConfig, TBConfig, CarrierConfig, PUSCHTransmitter, PUSCHPilotPattern
-from sionna.phy.channel.tr38901 import PanelArray, UMi, TDL, UMa
+from sionna.phy.channel.tr38901 import PanelArray, UMi, TDL, UMa, CDL
 from sionna.phy.mimo import StreamManagement
 from sionna.phy.channel import OFDMChannel, AWGN
 from .channel_models import DoubleTDLChannel, DatasetChannel
@@ -103,6 +103,7 @@ class Parameters:
         # This allows to configure different parameters during training and
         # evaluation.
         if not training:
+            self.delay_spread = self.delay_spread_eval
             self.channel_type = self.channel_type_eval
             self.n_size_bwp = self.n_size_bwp_eval
             self.max_ut_velocity = self.max_ut_velocity_eval
@@ -342,6 +343,51 @@ class Parameters:
                       num_tx_ant=pc.num_antenna_ports,
                       num_rx_ant=self.num_rx_antennas)
             self.channel = OFDMChannel(tdl,
+                                       self.transmitters[0].resource_grid,      # resource grid is independent of MCS
+                                       add_awgn=True,
+                                       normalize_channel=self.channel_norm,
+                                       return_channel=True)
+        # CDL - A, B, C, D, E
+        elif self.channel_type in ("CDL-A", "CDL-B", "CDL-C", "CDL-D", "CDL-E"):
+            if self.num_rx_antennas==1: # ignore polarization for single antenna
+                print("Using vertical polarization for single antenna setup.")
+                num_cols_per_panel = 1
+                num_rows_per_panel = 1
+                polarization = "single"
+                polarization_type = 'V'
+            else:
+                # we use a ULA array to be aligned with TDL models
+                num_cols_per_panel = self.num_rx_antennas//2
+                num_rows_per_panel = 1
+                polarization = "dual"
+                polarization_type = 'cross'
+                            
+            bs_array = PanelArray(num_rows_per_panel = num_rows_per_panel,
+                                  num_cols_per_panel = num_cols_per_panel,
+                                  polarization = polarization,
+                                  polarization_type  = polarization_type,
+                                  antenna_pattern = '38.901',
+                                  carrier_frequency = self.carrier_frequency)
+
+            ut_array = PanelArray(num_rows_per_panel = 1,
+                                  num_cols_per_panel = pc.num_antenna_ports,
+                                  polarization = 'single',
+                                  polarization_type = 'V',
+                                  antenna_pattern = 'omni',
+                                  carrier_frequency = self.carrier_frequency)            
+            
+            cdl_model = self.channel_type.split("-")[1]
+            delay_spread = self.delay_spread
+            cdl = CDL(model=cdl_model,
+                      delay_spread=delay_spread,
+                      carrier_frequency=self.carrier_frequency,
+                      ut_array=ut_array,
+                      bs_array=bs_array,
+                      direction='uplink',
+                      min_speed=self.min_ut_velocity,
+                      max_speed=self.max_ut_velocity,)
+
+            self.channel = OFDMChannel(cdl,
                                        self.transmitters[0].resource_grid,      # resource grid is independent of MCS
                                        add_awgn=True,
                                        normalize_channel=self.channel_norm,

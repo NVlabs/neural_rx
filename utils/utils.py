@@ -349,7 +349,7 @@ def training_loop(model, label, filename, training_logdir, training_seed,
             tf.summary.scalar(f"Total Loss", loss, step=global_iter)
 
             if weight_saving_schedule is not None and global_iter in weight_saving_schedule:
-                print(f"Saving weights after {global_iter} iterations")
+                tf.print(f"Saving weights after {global_iter} iterations")
                 save_weights(model, filename + f"_{global_iter}_iter")
         return global_iter, loss, loss_data, loss_chest
 
@@ -590,10 +590,16 @@ def plot_results(config_name, show_ber=False, xlim=None, ylim=None,
     else:
         print("No results found")
 
-    title = f"5G NR PUSCH {num_tx_eval}x{sys_parameters.num_rx_antennas} "\
-            f"MU-MIMO, {sys_parameters.channel_type}-Channel, " \
-            f"MCS={sys_parameters.mcs_index[mcs_arr_eval_idx]}, "\
-            f"PRBs={sys_parameters.n_size_bwp}"
+    if num_tx_eval >= 2: # MU-MIMO
+        title = f"5G NR PUSCH {num_tx_eval}x{sys_parameters.num_rx_antennas} "\
+                f"MU-MIMO, {sys_parameters.channel_type}-Channel, " \
+                f"MCS={sys_parameters.mcs_index[mcs_arr_eval_idx]}, "\
+                f"PRBs={sys_parameters.n_size_bwp}"
+    else:
+        title = f"5G NR PUSCH {sys_parameters.num_antenna_ports}x{sys_parameters.num_rx_antennas} "\
+                f"SU-MIMO, {sys_parameters.channel_type}-Channel, " \
+                f"MCS={sys_parameters.mcs_index[mcs_arr_eval_idx]}, "\
+                f"PRBs={sys_parameters.n_size_bwp}"
 
     ax.tick_params(axis='x', labelsize=15)
     ax.tick_params(axis='y', labelsize=15)
