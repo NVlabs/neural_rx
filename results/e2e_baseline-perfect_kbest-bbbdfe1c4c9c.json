@@ -1,0 +1,179 @@
+{
+  "spec": {
+    "config": "e2e_baseline.cfg",
+    "receiver": "perfect_kbest",
+    "checkpoint": null,
+    "num_users": 1,
+    "n_size_bwp": 132,
+    "mcs_indices": [
+      0
+    ],
+    "snr_mcs_index": 0,
+    "report_user": null,
+    "ebno_db": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0
+    ],
+    "batch_size": 3,
+    "max_batches": 500,
+    "target_block_errors": 500,
+    "target_bler": 0.001,
+    "num_iterations": null,
+    "covariance_samples": 100000,
+    "seed": 42
+  },
+  "results": [
+    {
+      "bits": 24177960,
+      "blocks": 549,
+      "bit_errors": 1240350,
+      "block_errors": 501,
+      "crc_successes": 48,
+      "ebno_db": -2.0,
+      "ber": 0.05130085416635647,
+      "bler": 0.912568306010929,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 24177960,
+          "blocks": 549,
+          "bit_errors": 1240350,
+          "block_errors": 501,
+          "crc_successes": 48,
+          "ber": 0.05130085416635647,
+          "bler": 0.912568306010929
+        }
+      ],
+      "elapsed_seconds": 2.7686637714505196
+    },
+    {
+      "bits": 39768120,
+      "blocks": 903,
+      "bit_errors": 681888,
+      "block_errors": 500,
+      "crc_successes": 403,
+      "ebno_db": -1.0,
+      "ber": 0.017146598833437436,
+      "bler": 0.5537098560354374,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 39768120,
+          "blocks": 903,
+          "bit_errors": 681888,
+          "block_errors": 500,
+          "crc_successes": 403,
+          "ber": 0.017146598833437436,
+          "bler": 0.5537098560354374
+        }
+      ],
+      "elapsed_seconds": 3.178082073107362
+    },
+    {
+      "bits": 66060000,
+      "blocks": 1500,
+      "bit_errors": 161979,
+      "block_errors": 265,
+      "crc_successes": 1235,
+      "ebno_db": 0.0,
+      "ber": 0.0024519981834695732,
+      "bler": 0.17666666666666667,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 66060000,
+          "blocks": 1500,
+          "bit_errors": 161979,
+          "block_errors": 265,
+          "crc_successes": 1235,
+          "ber": 0.0024519981834695732,
+          "bler": 0.17666666666666667
+        }
+      ],
+      "elapsed_seconds": 5.27996860537678
+    },
+    {
+      "bits": 66060000,
+      "blocks": 1500,
+      "bit_errors": 9655,
+      "block_errors": 42,
+      "crc_successes": 1458,
+      "ebno_db": 1.0,
+      "ber": 0.0001461550105964275,
+      "bler": 0.028,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 66060000,
+          "blocks": 1500,
+          "bit_errors": 9655,
+          "block_errors": 42,
+          "crc_successes": 1458,
+          "ber": 0.0001461550105964275,
+          "bler": 0.028
+        }
+      ],
+      "elapsed_seconds": 5.278798906132579
+    },
+    {
+      "bits": 66060000,
+      "blocks": 1500,
+      "bit_errors": 578,
+      "block_errors": 3,
+      "crc_successes": 1497,
+      "ebno_db": 2.0,
+      "ber": 8.749621556161065e-06,
+      "bler": 0.002,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 66060000,
+          "blocks": 1500,
+          "bit_errors": 578,
+          "block_errors": 3,
+          "crc_successes": 1497,
+          "ber": 8.749621556161065e-06,
+          "bler": 0.002
+        }
+      ],
+      "elapsed_seconds": 5.270810252986848
+    },
+    {
+      "bits": 66060000,
+      "blocks": 1500,
+      "bit_errors": 0,
+      "block_errors": 0,
+      "crc_successes": 1500,
+      "ebno_db": 3.0,
+      "ber": 0.0,
+      "bler": 0.0,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 66060000,
+          "blocks": 1500,
+          "bit_errors": 0,
+          "block_errors": 0,
+          "crc_successes": 1500,
+          "ber": 0.0,
+          "bler": 0.0
+        }
+      ],
+      "elapsed_seconds": 5.273529672063887
+    }
+  ],
+  "complete": true
+}

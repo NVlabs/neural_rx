@@ -1,0 +1,205 @@
+{
+  "spec": {
+    "config": "nrx_rt_qpsk.cfg",
+    "receiver": "ls_linear_lmmse",
+    "checkpoint": null,
+    "num_users": 1,
+    "n_size_bwp": 132,
+    "mcs_indices": [
+      0
+    ],
+    "snr_mcs_index": 0,
+    "report_user": null,
+    "ebno_db": [
+      -3.0,
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0,
+      7.0
+    ],
+    "batch_size": 30,
+    "max_batches": 500,
+    "target_block_errors": 500,
+    "target_bler": 0.001,
+    "num_iterations": null,
+    "covariance_samples": 100000,
+    "seed": 42
+  },
+  "results": [
+    {
+      "bits": 12803040,
+      "blocks": 510,
+      "bit_errors": 1924883,
+      "block_errors": 509,
+      "crc_successes": 1,
+      "ebno_db": -3.0,
+      "ber": 0.15034577725290243,
+      "bler": 0.9980392156862745,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 12803040,
+          "blocks": 510,
+          "bit_errors": 1924883,
+          "block_errors": 509,
+          "crc_successes": 1,
+          "ber": 0.15034577725290243,
+          "bler": 0.9980392156862745
+        }
+      ],
+      "elapsed_seconds": 0.9494223240762949
+    },
+    {
+      "bits": 13556160,
+      "blocks": 540,
+      "bit_errors": 1401798,
+      "block_errors": 521,
+      "crc_successes": 19,
+      "ebno_db": -2.0,
+      "ber": 0.1034067169463919,
+      "bler": 0.9648148148148148,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 13556160,
+          "blocks": 540,
+          "bit_errors": 1401798,
+          "block_errors": 521,
+          "crc_successes": 19,
+          "ber": 0.1034067169463919,
+          "bler": 0.9648148148148148
+        }
+      ],
+      "elapsed_seconds": 0.5698040723800659
+    },
+    {
+      "bits": 18074880,
+      "blocks": 720,
+      "bit_errors": 806889,
+      "block_errors": 525,
+      "crc_successes": 195,
+      "ebno_db": -1.0,
+      "ber": 0.04464145820055237,
+      "bler": 0.7291666666666666,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 18074880,
+          "blocks": 720,
+          "bit_errors": 806889,
+          "block_errors": 525,
+          "crc_successes": 195,
+          "ber": 0.04464145820055237,
+          "bler": 0.7291666666666666
+        }
+      ],
+      "elapsed_seconds": 0.7569555714726448
+    },
+    {
+      "bits": 45187200,
+      "blocks": 1800,
+      "bit_errors": 466293,
+      "block_errors": 512,
+      "crc_successes": 1288,
+      "ebno_db": 0.0,
+      "ber": 0.010319139048226046,
+      "bler": 0.28444444444444444,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 45187200,
+          "blocks": 1800,
+          "bit_errors": 466293,
+          "block_errors": 512,
+          "crc_successes": 1288,
+          "ber": 0.010319139048226046,
+          "bler": 0.28444444444444444
+        }
+      ],
+      "elapsed_seconds": 1.8894773358479142
+    },
+    {
+      "bits": 194304960,
+      "blocks": 7740,
+      "bit_errors": 255755,
+      "block_errors": 500,
+      "crc_successes": 7240,
+      "ebno_db": 1.0,
+      "ber": 0.0013162556426763372,
+      "bler": 0.06459948320413436,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 194304960,
+          "blocks": 7740,
+          "bit_errors": 255755,
+          "block_errors": 500,
+          "crc_successes": 7240,
+          "ber": 0.0013162556426763372,
+          "bler": 0.06459948320413436
+        }
+      ],
+      "elapsed_seconds": 8.120435982942581
+    },
+    {
+      "bits": 376560000,
+      "blocks": 15000,
+      "bit_errors": 41029,
+      "block_errors": 96,
+      "crc_successes": 14904,
+      "ebno_db": 2.0,
+      "ber": 0.00010895740386658169,
+      "bler": 0.0064,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 376560000,
+          "blocks": 15000,
+          "bit_errors": 41029,
+          "block_errors": 96,
+          "crc_successes": 14904,
+          "ber": 0.00010895740386658169,
+          "bler": 0.0064
+        }
+      ],
+      "elapsed_seconds": 15.72422786988318
+    },
+    {
+      "bits": 376560000,
+      "blocks": 15000,
+      "bit_errors": 1254,
+      "block_errors": 2,
+      "crc_successes": 14998,
+      "ebno_db": 3.0,
+      "ber": 3.330146590184831e-06,
+      "bler": 0.00013333333333333334,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 376560000,
+          "blocks": 15000,
+          "bit_errors": 1254,
+          "block_errors": 2,
+          "crc_successes": 14998,
+          "ber": 3.330146590184831e-06,
+          "bler": 0.00013333333333333334
+        }
+      ],
+      "elapsed_seconds": 15.712879869155586
+    }
+  ],
+  "complete": true
+}

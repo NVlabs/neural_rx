@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "neural-rx"
+version = "0.1.1"
+description = "PyTorch neural receiver research code"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",
+    "onnx>=1.17",
+    "onnxscript>=0.1",
+    "safetensors>=0.5",
+    "sionna>=2.1",
+    "sionna-rt>=2.1",
+    "torch>=2.9.1,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "matplotlib>=3.10",
+    "pytest>=8.3",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    "ipykernel>=6.29",
+]
+tensorrt = ["torch>=2.14,<3", "tensorrt-cu13>=10.16", "nvidia-modelopt[onnx]"]
+
+[project.scripts]
+neural-rx = "neural_rx.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/neural_rx", "src/experiments", "src/raytracing"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "notebook: executes tutorial notebooks in the active Python environment",
+]

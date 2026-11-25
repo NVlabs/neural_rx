@@ -1,0 +1,122 @@
+{
+  "aggregation_units": [
+    [
+      64
+    ],
+    [
+      64
+    ]
+  ],
+  "configured_schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.02,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0,
+        15.0
+      ],
+      "min_ebno_db": [
+        0.0,
+        0.0
+      ],
+      "multiloss": false,
+      "steps": 1000000,
+      "train_tx": false
+    },
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        7.0,
+        12.0
+      ],
+      "min_ebno_db": [
+        1.0,
+        2.0
+      ],
+      "multiloss": false,
+      "steps": 1000000,
+      "train_tx": false
+    }
+  ],
+  "convolution": "sepconv",
+  "final_loss": 0.12691256403923035,
+  "init_units": [
+    128,
+    128
+  ],
+  "initial_channel_estimate": true,
+  "label": "nrx_rt",
+  "mcs_indices": [
+    14
+  ],
+  "mcs_masking": false,
+  "num_bits_per_symbol": 4,
+  "num_bits_per_symbol_by_mcs": [
+    4
+  ],
+  "num_iterations": 2,
+  "num_rx_antennas": 4,
+  "phase": 2,
+  "readout_units": [
+    128
+  ],
+  "schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.02,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0,
+        15.0
+      ],
+      "min_ebno_db": [
+        0.0,
+        0.0
+      ],
+      "multiloss": false,
+      "steps": 1000000,
+      "train_tx": false
+    },
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        7.0,
+        12.0
+      ],
+      "min_ebno_db": [
+        1.0,
+        2.0
+      ],
+      "multiloss": false,
+      "steps": 1000000,
+      "train_tx": false
+    }
+  ],
+  "state_dim": 56,
+  "steps": 2000000,
+  "training_data": "sionna-UMi",
+  "transmitter": "standard-qam",
+  "update_units": [
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ]
+  ]
+}

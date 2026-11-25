@@ -1,0 +1,195 @@
+{
+  "aggregation_units": [
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ],
+    [
+      64
+    ]
+  ],
+  "completed_schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0
+      ],
+      "min_ebno_db": [
+        0.0
+      ],
+      "multiloss": true,
+      "steps": 200000,
+      "train_tx": false
+    }
+  ],
+  "configured_schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.02,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0
+      ],
+      "min_ebno_db": [
+        0.0
+      ],
+      "multiloss": true,
+      "steps": 0,
+      "train_tx": false
+    },
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0
+      ],
+      "min_ebno_db": [
+        0.0
+      ],
+      "multiloss": true,
+      "steps": 200000,
+      "train_tx": false
+    }
+  ],
+  "convolution": "sepconv",
+  "dataset": null,
+  "environment": {
+    "cuda": "13.0",
+    "python": "3.12.3",
+    "sionna": "2.1.0",
+    "sionna-rt": "2.1.0",
+    "torch": "2.13.0+cu130"
+  },
+  "final_loss": 0.9366310238838196,
+  "init_units": [
+    128,
+    128
+  ],
+  "initial_channel_estimate": true,
+  "initialized_from": {
+    "label": "nrx_large",
+    "path": "weights/pretrained/nrx_large.safetensors",
+    "steps": 2000000
+  },
+  "label": "e2e_baseline",
+  "max_steps": null,
+  "mcs_indices": [
+    14
+  ],
+  "mcs_masking": false,
+  "model_execution": {
+    "autocast": "bfloat16",
+    "compiled": true,
+    "dynamic": false,
+    "fullgraph": true
+  },
+  "num_bits_per_symbol": 4,
+  "num_bits_per_symbol_by_mcs": [
+    4
+  ],
+  "num_iterations": 8,
+  "num_rx_antennas": 4,
+  "phase": 2,
+  "readout_units": [
+    128
+  ],
+  "schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.02,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0
+      ],
+      "min_ebno_db": [
+        0.0
+      ],
+      "multiloss": true,
+      "steps": 0,
+      "train_tx": false
+    },
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        10.0
+      ],
+      "min_ebno_db": [
+        0.0
+      ],
+      "multiloss": true,
+      "steps": 200000,
+      "train_tx": false
+    }
+  ],
+  "seed": 42,
+  "state_dim": 56,
+  "steps": 200000,
+  "training_data": "sionna-UMi",
+  "transmitter": "standard-qam",
+  "update_units": [
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ]
+  ]
+}

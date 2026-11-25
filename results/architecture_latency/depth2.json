@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "depth": 2,
+    "users": 2,
+    "prbs": 132,
+    "batch_size": 1,
+    "fp16": true,
+    "training_aligned": true,
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "cuda": "13.0",
+    "torch": "2.13.0+cu130",
+    "tensorrt": "10.16.1.11"
+  },
+  "timing": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "batch_size": 1,
+    "repetitions": 100,
+    "cuda_stream_ms_median": 0.9809920191764832,
+    "cuda_stream_ms_p95": 0.9849968254566193,
+    "synchronized_wall_ms_median": 0.9975386783480644
+  }
+}

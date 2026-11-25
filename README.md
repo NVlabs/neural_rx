@@ -1,120 +1,241 @@
-<!-- SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-SPDX-License-Identifier: LicenseRef-NvidiaProprietary
-
-NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
-property and proprietary rights in and to this material, related
-documentation and any modifications thereto. Any use, reproduction,
-disclosure or distribution of this material and related documentation
-without an express license agreement from NVIDIA CORPORATION or
-its affiliates is strictly prohibited. -->
-
 # Real-Time Inference of 5G NR Multi-user MIMO Neural Receivers
 
-The code in this repository allows to design, train, and evaluate [neural
-receivers](https://developer.nvidia.com/blog/towards-environment-specific-base-stations-ai-ml-driven-neural-5g-nr-multi-user-mimo-receiver/)
-using the [NVIDIA® Sionna™ link-level simulation
-library](https://nvlabs.github.io/sionna/) and TensorFlow. Further, trained
-receivers can be prepared for real-time inference via [NVIDIA®
-TensorRT™](https://developer.nvidia.com/tensorrt).
+> :warning: **Warning**
+>
+> This project was originally released for Sionna 0.18.0 and was based on
+> TensorFlow. The current codebase has been automatically migrated to PyTorch and Sionna 2.
+> The complete original TensorFlow implementation is preserved in the
+> `tensorflow` branch.
+
+This repository provides PyTorch implementations for designing, training, and
+evaluating 5G NR neural receivers with
+[NVIDIA Sionna](https://nvlabs.github.io/sionna/). Trained receivers can be
+exported to ONNX for real-time inference.
 
 [<p align="center"><img src="misc/nrx_overview.png" height=400></p>](notebooks/jumpstart_tutorial.ipynb)
 
-The following features are currently supported:
+The receiver operates on a complete PUSCH OFDM slot and jointly performs channel
+estimation, equalization, and demapping. It supports:
 
-- 5G NR compliant Multi-user MIMO PUSCH receiver
-- Training pipeline using 3GPP compliant channel models
-- TensorRT / ONNX model export for real-time inference
-- Support for varying number of PRBs, users, and different MCS schemes per user
-- End-to-end learning of custom constellations for [pilotless communications](https://arxiv.org/pdf/2009.05261) [3]
-- Site-specific training using ray-tracing based channel simulations from [SionnaRT](https://nvlabs.github.io/sionna/api/rt.html) as done in [2]
+- Multi-user MIMO PUSCH reception
+- UMi, UMa, TDL, AWGN, and Sionna RT channel models
+- Carrier frequency offsets
+- Fixed and mixed assignments from PUSCH MCS table 1
+- A varying number of active users
+- Site-specific fine-tuning
+- End-to-end constellation learning for pilotless communication
+- Native and Aerial-compatible ONNX export
 
-We recommend starting with the [Jumpstart NRX Tutorial notebook](notebooks/jumpstart_tutorial.ipynb) for a detailed introduction and overview of the project.
-
-The basic neural receiver architecture is introduced and described in [a Neural Receiver for 5G NR Multi-user MIMO](https://arxiv.org/pdf/2312.02601) [1].
-The real-time experiments and the site-specific training is described in [Design of a Standard-Compliant Real-Time
-Neural Receiver for 5G NR](https://arxiv.org/abs/2409.02912) [2].
-
-Demos of this receiver architecture have been shown at [Mobile World Congress 2023](https://www.youtube.com/watch?v=BQyxBYzdg5k) and [Mobile World Congress 2024](https://www.keysight.com/us/en/assets/3124-1306/demos/6G-AI-Neural-Receiver-Design.mp4).
-
-For further details regarding solutions for deployment in an actual Radio Access Network (RAN), we recommend registering for the [NVIDIA 6G Developer Program](https://developer.nvidia.com/6g-program).
+Start with the [jumpstart tutorial](notebooks/jumpstart_tutorial.ipynb).
 
 [<p align="center"><img src="misc/nrx_bler_results.png" height=400></p>](notebooks/jumpstart_tutorial.ipynb)
 
-## Summary
+## Experiments
 
-We introduce a neural network (NN)-based multi-user multiple-input
-multiple-output (MU-MIMO) receiver with full 5G New Radio (5G NR) physical
-uplink shared channel (PUSCH) compatibility based on graph and convolutional
-neural network (CGNN) components. The proposed architecture can be easily
-re-parametrized to an arbitrary number of sub-carriers and supports a varying
-number of users without the need for any additional re-training. The receiver
-operates on an entire 5G NR slot, i.e., it processes the entire received
-orthogonal frequency division multiplexing (OFDM) time-frequency resource grid
-by jointly performing channel estimation, equalization, and demapping. We show
-the importance of a carefully designed training process such that the trained
-receiver does not overfit to a specific channel realization and remains
-universal for a wide range of different unseen channel conditions. A particular
-focus of the architecture design is put on the real-time inference capability
-such that the receiver can be executed within 1 ms latency on an NVIDIA A100
-GPU.
+- `nrx_rt`: two CGNN iterations for low inference latency
+- `nrx_large`: eight CGNN iterations for higher model capacity
+- `e2e_rt`: four iterations with pilotless constellation learning
+- `e2e_large`: eight iterations with pilotless constellation learning
+- `nrx_*_qpsk` and `nrx_*_64qam`: fixed-MCS receivers
+- `nrx_*_var_mcs`: variable-MCS receivers
+- `nrx_site_specific*`: Sionna RT fine-tuning experiments
+- `nrx_oai`: single-antenna, single-user receiver for OpenAirInterface
+  deployments, with an Aerial-profile ONNX model in `onnx_models/nrx_oai.onnx`
 
-[<p align="center"><img src="misc/nrx_latency.png" height=450></p>](notebooks/real_time_nrx.ipynb)
+The `nrx_rt` and `nrx_large` configurations train in two phases of one million
+steps each. The E2E configurations train the constellation for 300,000 steps on
+TDL-C300 and then fine-tune the receiver for 1.7 million steps on UMi. The
+piloted one-CDM-group E2E baseline `e2e_baseline` fine-tunes `nrx_large` for
+200,000 steps. `nrx_rt_var_mcs` trains for 100,000 and 2 million steps in its
+first two phases, followed by 5.24 million low-SNR steps (with
+`--compile-model --amp`); `nrx_large_var_mcs` trains for 100,000 and 1.9
+million steps, followed by 363,000 low-SNR steps.
+
+Pretrained checkpoints are stored in `weights/pretrained/`; the JSON file next
+to each checkpoint records its receiver configuration and training run. Retrieve their Git LFS content after cloning:
+
+```bash
+git lfs install
+git lfs pull
+```
 
 ## Setup
 
-Running this code requires [Sionna 0.18](https://nvlabs.github.io/sionna/).
-To run the notebooks on your machine, you also need [Jupyter](https://jupyter.org).
-We recommend Ubuntu 22.04, Python 3.10, and TensorFlow 2.15.
+Python 3.11 or newer and Sionna 2.1 or newer are required.
 
-For [TensorRT](https://developer.nvidia.com/tensorrt), we recommend version 9.6 and newer.
-For [ONNX](https://onnx.ai/) exporting, the Python package `onnx==1.14` is required (`onnx==1.15` does not work due to a known bug).
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+pytest
+```
 
-## Structure of this repository
+For a library-only installation:
 
-This repository is structured in the following way:
-- [config](config/) contains the system configurations for different experiments
-- [notebooks](notebooks/) contains tutorials and code examples
-- [scripts](scripts/) contains the scripts to train, evaluate and debug the NRX
-- [utils](utils/) contains the NRX definition and all Python utilities
-- [weights](weights/) contains weights of pre-trained neural receivers for different configuration files
-- [results](results/) contains pre-computed BLER performance results
+```bash
+pip install -e .
+```
 
-The following two folders will be generated locally:
-- `logs` contains log files of the training
-- `onnx_models` contains exported ONNX neural receiver models
-- `data` contains a ray tracing-based dataset of channel realizations for site-specific evaluation
+Install the PyTorch build appropriate for the target CUDA environment before
+installing the remaining dependencies when the default wheel is unsuitable.
 
-We recommend starting with the [Jumpstart NRX Tutorial notebook](notebooks/jumpstart_tutorial.ipynb) for a detailed introduction and overview of the project.
+## Train
+
+```bash
+neural-rx train \
+    --config config/nrx_rt.cfg \
+    --output weights/runs/nrx_rt.safetensors
+```
+
+Training schedules, channels, active-user sampling, and Eb/N0 ranges are read
+from the selected configuration. `--max-steps` and `--batch-size` provide
+explicit development overrides. `--compile-model --amp` compiles the receiver
+and runs it in bfloat16 autocast, which roughly halves the step time on Ampere
+or newer GPUs.
+
+Site-specific fine-tuning starts from a generalized checkpoint. The
+ray-traced datasets in `data/` are generated by the site-specific notebook:
+
+```bash
+neural-rx train \
+    --config config/nrx_site_specific.cfg \
+    --init-checkpoint weights/pretrained/nrx_rt.safetensors \
+    --output weights/runs/nrx_site_specific.safetensors
+```
+
+## Evaluate
+
+```bash
+neural-rx evaluate \
+    --config config/nrx_rt.cfg \
+    --checkpoint weights/pretrained/nrx_rt.safetensors \
+    --output results/nrx_rt.json
+```
+
+Evaluation performs transport-block decoding and reports BER, BLER, CRC success
+rate, and sample counts. For mixed-MCS configurations, `--mcs-indices` selects
+one configured MCS entry for each user.
+
+As in the TensorFlow release, `scripts/evaluate.py` sweeps all numbers of
+active users and all configured MCSs for the neural receiver and the three
+baselines. Its curves are stored in `results/`, which ships with pre-computed
+results for all notebooks, and are reused by `plot_results` and `plot_gp`.
+Stored curves are keyed by their settings only; pass `force=True` to
+`run_bler` to re-simulate after changing code or checkpoints:
+
+```bash
+cd scripts
+python evaluate.py -config_name nrx_rt.cfg
+```
+
+The channel is selected by `channel_type` and `channel_type_eval`: `UMi`,
+`UMa`, `TDL-B100`, `TDL-C300`, `DoubleTDLlow`, `DoubleTDLmedium`,
+`DoubleTDLhigh`, `AWGN`, or `Dataset`. A carrier frequency offset is enabled by
+`cfo_offset_ppm` in `[training]` (drawn uniformly per user) and
+`cfo_offset_ppm_eval` in `[evaluation]` (fixed).
+
+## Export
+
+```bash
+neural-rx export \
+    --config config/nrx_rt.cfg \
+    --checkpoint weights/pretrained/nrx_rt.safetensors \
+    --output onnx_models/nrx_rt.onnx
+```
+
+The ONNX interface uses real/imaginary feature packing, a dynamic batch
+dimension, and returns LLRs. Add `--profile aerial` for the sparse LS-channel
+input used by Aerial and TensorRT deployments. The grid size defaults to the
+configured evaluation `n_size_bwp`; override it with `--n-size-bwp`.
+
+[<p align="center"><img src="misc/nrx_latency.png" height=450></p>](notebooks/real_time_nrx.ipynb)
+
+The inference graph avoids full-resolution elementwise operations: the user
+aggregation is one batched matrix product with zero weights for inactive
+users, and intermediate states of inactive users are not masked because only
+the masked readouts are observed. This is mathematically equivalent to the
+previous graph, so existing checkpoints are unchanged, and it applies to every
+export, including `neural-rx export`.
+
+The TensorRT notebook additionally uses `TrainingAlignedAerialReceiver`
+(`src/experiments/tensorrt_experiment.py`), which replaces the generic input
+rearrangement of a fixed resource grid by a single precomputed gather through
+`NeuralReceiver.forward_features`. With TensorRT 10.16 (FP16, 132 PRBs, two
+users, batch size one) on an NVIDIA L40S, its benchmark of `nrx_rt` drops from
+0.685 ms to 0.464 ms and that of `nrx_large` from 1.725 ms to 1.232 ms. For
+the 24-PRB `nrx_oai` export used by the Sionna Research Kit, TensorRT 11.5
+(FP16) on DGX Spark drops from 0.151 ms to 0.100 ms.
+
+## Differences to the TensorFlow release
+
+The port follows the TensorFlow implementation in the `tensorflow` branch. The
+released PyTorch checkpoints and `onnx_models/nrx_oai.onnx` were trained with
+the deviations below, so changing any of them requires retraining and
+re-exporting:
+
+- **Pilot positional encoding.** TensorFlow measures the distance to the
+  nearest non-zero pilot and divides by the standard deviation whenever it is
+  non-zero. The port measures the distance to the nearest resource element of
+  the pilot pattern, including the zero-power ones, and divides by
+  `max(std, 1)`. The frequency feature is therefore all zeros for `nrx_rt` and
+  `nrx_large` (±1 in TensorFlow) and ±0.5 for `nrx_oai`.
+- **Initialization and optimizer.** Convolutions use the PyTorch default
+  initialization instead of Glorot-uniform weights with zero biases, and Adam
+  uses `eps=1e-8` instead of `1e-7`.
+- **Training schedules.** The second phase of `nrx_rt` and `nrx_large` runs
+  for 1 million instead of 9 million steps; the second phase of the E2E
+  configurations runs for 1.7 million steps on UMi instead of 9 million.
+  `mcs_training_probs` is not supported; MCS indices are sampled uniformly.
+
+## Tutorials
+
+- [Jumpstart](notebooks/jumpstart_tutorial.ipynb)
+- [Neural receiver architecture](notebooks/nrx_architecture.ipynb)
+- [Pilotless end-to-end communications](notebooks/e2e_pilotless_communications.ipynb)
+- [Variable-MCS receiver](notebooks/variable_mcs_nrx.ipynb)
+- [Site-specific receivers](notebooks/site_specific_neural_receivers.ipynb)
+- [ONNX and TensorRT deployment](notebooks/real_time_nrx.ipynb)
+- [BLER and goodput visualization](notebooks/plot_results.ipynb)
+
+## Repository structure
+
+- `config`: experiment configurations
+- `misc`: README figures
+- `notebooks`: tutorials and complete experiments
+- `scripts`: command-line wrappers
+- `src/neural_rx`: model, PHY, training, evaluation, and deployment code
+- `src/experiments`: BLER sweeps, plotting, and TensorRT helpers used by the notebooks
+- `src/raytracing`: Sionna RT scene, CIR dataset generation, and site-specific sweep
+- `tests`: unit and integration tests
+- `weights/pretrained`: pretrained PyTorch checkpoints
+
+Generated checkpoints, results, CIR datasets, and ONNX models are stored under
+`weights/runs`, `results`, `data`, and `onnx_models`.
 
 ## References
 
-[1] S. Cammerer, F. Aït Aoudia, J. Hoydis, A. Oeldemann, A. Roessler, T. Mayer, and A. Keller, "[A Neural Receiver for 5G NR Multi-user MIMO](https://arxiv.org/pdf/2312.02601)", IEEE Workshops (GC Wkshps), Dec. 2023.
-
-[2] R. Wiesmayr, S. Cammerer, F. Aït Aoudia, J. Hoydis, J. Zakrzewski, and A. Keller, "[Design of a Standard-Compliant Real-Time Neural Receiver for 5G NR](https://arxiv.org/abs/2409.02912)", arxiv preprint, 2024.
-
-[3] F. Aït Aoudia and J. Hoydis, "[End-to-end Learning for OFDM: From Neural Receivers to Pilotless Communication](https://arxiv.org/pdf/2009.05261)", IEEE Trans on Wireless Commun., 2021.
+1. S. Cammerer et al., [A Neural Receiver for 5G NR Multi-user
+   MIMO](https://arxiv.org/pdf/2312.02601), IEEE GC Workshops, 2023.
+2. R. Wiesmayr et al., [Design of a Standard-Compliant Real-Time Neural
+   Receiver for 5G NR](https://arxiv.org/abs/2409.02912), 2024.
+3. F. Aït Aoudia and J. Hoydis, [End-to-end Learning for OFDM: From Neural
+   Receivers to Pilotless
+   Communication](https://arxiv.org/pdf/2009.05261), IEEE TWC, 2021.
 
 ## License
 
-Copyright &copy; 2024, NVIDIA Corporation. All rights reserved.
+Copyright © 2024-2026 NVIDIA Corporation. All rights reserved.
 
-This work is made available under the [NVIDIA License](LICENSE.txt).
+This work is available under the [NVIDIA License](LICENSE.txt).
 
-# Citation
+## Citation
 
-```
+```bibtex
 @software{neural_rx,
     title = {Real-time 5G NR Multi-user MIMO Receivers},
     author = {Sebastian Cammerer, Reinhard Wiesmayr, Fayçal Aït Aoudia, Jakob Hoydis, Tommi Koivisto, Jakub Zakrzewski, Ruqing Xu, Pawel Morkisz, Chris Dick, and Alexander Keller},
-    note = {https://github.com/NVlabs/neural-rx},
-    year = 2024
+    note = {https://github.com/NVlabs/neural_rx},
+    year = {2024}
 }
 ```
-
-# Acknowledgement
-
-This work has received financial support from the European Union under
-Grant Agreement 101096379 (CENTRIC). Views and opinions expressed are
-however those of the author(s) only and do not necessarily reflect those of the
-European Union or the European Commission (granting authority). Neither the
-European Union nor the granting authority can be held responsible for them.

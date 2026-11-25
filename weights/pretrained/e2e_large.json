@@ -1,0 +1,156 @@
+{
+  "aggregation_units": [
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ],
+    [
+      128
+    ]
+  ],
+  "configured_schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "TDL-C300",
+      "channel_weight": 0.02,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        3.5
+      ],
+      "min_ebno_db": [
+        3.5
+      ],
+      "multiloss": true,
+      "steps": 300000,
+      "train_tx": true
+    },
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        7.0
+      ],
+      "min_ebno_db": [
+        1.0
+      ],
+      "multiloss": true,
+      "steps": 1700000,
+      "train_tx": false
+    }
+  ],
+  "convolution": "sepconv",
+  "final_loss": 1.037174105644226,
+  "init_units": [
+    128,
+    128
+  ],
+  "initial_channel_estimate": false,
+  "label": "e2e_large",
+  "mcs_indices": [
+    14
+  ],
+  "mcs_masking": false,
+  "num_bits_per_symbol": 4,
+  "num_bits_per_symbol_by_mcs": [
+    4
+  ],
+  "num_iterations": 8,
+  "num_rx_antennas": 4,
+  "phase": 2,
+  "readout_units": [
+    128
+  ],
+  "schedule": [
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "TDL-C300",
+      "channel_weight": 0.02,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        3.5
+      ],
+      "min_ebno_db": [
+        3.5
+      ],
+      "multiloss": true,
+      "steps": 300000,
+      "train_tx": true
+    },
+    {
+      "batch_size": 128,
+      "channel_readout": true,
+      "channel_type": "UMi",
+      "channel_weight": 0.01,
+      "learning_rate": 0.001,
+      "max_ebno_db": [
+        7.0
+      ],
+      "min_ebno_db": [
+        1.0
+      ],
+      "multiloss": true,
+      "steps": 1700000,
+      "train_tx": false
+    }
+  ],
+  "state_dim": 64,
+  "steps": 2000000,
+  "training_data": "sionna-TDL-C300->UMi",
+  "transmitter": "trainable-constellation",
+  "update_units": [
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ]
+  ]
+}

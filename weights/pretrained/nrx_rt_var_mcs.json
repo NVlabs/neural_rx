@@ -1,0 +1,50 @@
+{
+  "aggregation_units": [
+    [
+      64
+    ],
+    [
+      64
+    ]
+  ],
+  "amp": true,
+  "compile_model": true,
+  "convolution": "sepconv",
+  "final_loss": 0.08377492427825928,
+  "init_checkpoint": null,
+  "init_units": [
+    128,
+    128
+  ],
+  "initial_channel_estimate": true,
+  "label": "nrx_rt_var_mcs",
+  "mcs_indices": [
+    9,
+    14
+  ],
+  "mcs_masking": false,
+  "num_bits_per_symbol": 4,
+  "num_bits_per_symbol_by_mcs": [
+    2,
+    4
+  ],
+  "num_iterations": 2,
+  "num_rx_antennas": 4,
+  "phase": 3,
+  "readout_units": [
+    128
+  ],
+  "seed": 42,
+  "state_dim": 56,
+  "steps": 7340000,
+  "update_units": [
+    [
+      128,
+      128
+    ],
+    [
+      128,
+      128
+    ]
+  ]
+}

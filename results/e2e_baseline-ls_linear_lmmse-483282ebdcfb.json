@@ -1,0 +1,251 @@
+{
+  "spec": {
+    "config": "e2e_baseline.cfg",
+    "receiver": "ls_linear_lmmse",
+    "checkpoint": null,
+    "num_users": 1,
+    "n_size_bwp": 132,
+    "mcs_indices": [
+      0
+    ],
+    "snr_mcs_index": 0,
+    "report_user": null,
+    "ebno_db": [
+      -2.0,
+      -1.0,
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0,
+      6.0
+    ],
+    "batch_size": 30,
+    "max_batches": 500,
+    "target_block_errors": 500,
+    "target_bler": 0.001,
+    "num_iterations": null,
+    "covariance_samples": 100000,
+    "seed": 42
+  },
+  "results": [
+    {
+      "bits": 22460400,
+      "blocks": 510,
+      "bit_errors": 3220212,
+      "block_errors": 510,
+      "crc_successes": 0,
+      "ebno_db": -2.0,
+      "ber": 0.14337286958380083,
+      "bler": 1.0,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 22460400,
+          "blocks": 510,
+          "bit_errors": 3220212,
+          "block_errors": 510,
+          "crc_successes": 0,
+          "ber": 0.14337286958380083,
+          "bler": 1.0
+        }
+      ],
+      "elapsed_seconds": 1.7446711929515004
+    },
+    {
+      "bits": 22460400,
+      "blocks": 510,
+      "bit_errors": 2365852,
+      "block_errors": 510,
+      "crc_successes": 0,
+      "ebno_db": -1.0,
+      "ber": 0.1053343662623996,
+      "bler": 1.0,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 22460400,
+          "blocks": 510,
+          "bit_errors": 2365852,
+          "block_errors": 510,
+          "crc_successes": 0,
+          "ber": 0.1053343662623996,
+          "bler": 1.0
+        }
+      ],
+      "elapsed_seconds": 0.9045741986483335
+    },
+    {
+      "bits": 22460400,
+      "blocks": 510,
+      "bit_errors": 1403749,
+      "block_errors": 510,
+      "crc_successes": 0,
+      "ebno_db": 0.0,
+      "ber": 0.06249884240708091,
+      "bler": 1.0,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 22460400,
+          "blocks": 510,
+          "bit_errors": 1403749,
+          "block_errors": 510,
+          "crc_successes": 0,
+          "ber": 0.06249884240708091,
+          "bler": 1.0
+        }
+      ],
+      "elapsed_seconds": 0.902536828070879
+    },
+    {
+      "bits": 23781600,
+      "blocks": 540,
+      "bit_errors": 658593,
+      "block_errors": 500,
+      "crc_successes": 40,
+      "ebno_db": 1.0,
+      "ber": 0.027693384801695427,
+      "bler": 0.9259259259259259,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 23781600,
+          "blocks": 540,
+          "bit_errors": 658593,
+          "block_errors": 500,
+          "crc_successes": 40,
+          "ber": 0.027693384801695427,
+          "bler": 0.9259259259259259
+        }
+      ],
+      "elapsed_seconds": 0.9557920452207327
+    },
+    {
+      "bits": 35672400,
+      "blocks": 810,
+      "bit_errors": 317445,
+      "block_errors": 521,
+      "crc_successes": 289,
+      "ebno_db": 2.0,
+      "ber": 0.008898896625962929,
+      "bler": 0.6432098765432098,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 35672400,
+          "blocks": 810,
+          "bit_errors": 317445,
+          "block_errors": 521,
+          "crc_successes": 289,
+          "ber": 0.008898896625962929,
+          "bler": 0.6432098765432098
+        }
+      ],
+      "elapsed_seconds": 1.4300472112372518
+    },
+    {
+      "bits": 101732400,
+      "blocks": 2310,
+      "bit_errors": 174522,
+      "block_errors": 505,
+      "crc_successes": 1805,
+      "ebno_db": 3.0,
+      "ber": 0.0017155006664543448,
+      "bler": 0.21861471861471862,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 101732400,
+          "blocks": 2310,
+          "bit_errors": 174522,
+          "block_errors": 505,
+          "crc_successes": 1805,
+          "ber": 0.0017155006664543448,
+          "bler": 0.21861471861471862
+        }
+      ],
+      "elapsed_seconds": 4.066348134540021
+    },
+    {
+      "bits": 640782000,
+      "blocks": 14550,
+      "bit_errors": 106562,
+      "block_errors": 500,
+      "crc_successes": 14050,
+      "ebno_db": 4.0,
+      "ber": 0.0001662999272763592,
+      "bler": 0.03436426116838488,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 640782000,
+          "blocks": 14550,
+          "bit_errors": 106562,
+          "block_errors": 500,
+          "crc_successes": 14050,
+          "ber": 0.0001662999272763592,
+          "bler": 0.03436426116838488
+        }
+      ],
+      "elapsed_seconds": 25.61310417857021
+    },
+    {
+      "bits": 660600000,
+      "blocks": 15000,
+      "bit_errors": 4240,
+      "block_errors": 37,
+      "crc_successes": 14963,
+      "ebno_db": 5.0,
+      "ber": 6.418407508325765e-06,
+      "bler": 0.0024666666666666665,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 660600000,
+          "blocks": 15000,
+          "bit_errors": 4240,
+          "block_errors": 37,
+          "crc_successes": 14963,
+          "ber": 6.418407508325765e-06,
+          "bler": 0.0024666666666666665
+        }
+      ],
+      "elapsed_seconds": 29.509065352380276
+    },
+    {
+      "bits": 660600000,
+      "blocks": 15000,
+      "bit_errors": 292,
+      "block_errors": 2,
+      "crc_successes": 14998,
+      "ebno_db": 6.0,
+      "ber": 4.420224038752649e-07,
+      "bler": 0.00013333333333333334,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 0,
+          "bits": 660600000,
+          "blocks": 15000,
+          "bit_errors": 292,
+          "block_errors": 2,
+          "crc_successes": 14998,
+          "ber": 4.420224038752649e-07,
+          "bler": 0.00013333333333333334
+        }
+      ],
+      "elapsed_seconds": 28.578053484670818
+    }
+  ],
+  "complete": true
+}

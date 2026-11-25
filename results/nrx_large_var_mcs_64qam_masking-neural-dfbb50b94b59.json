@@ -1,0 +1,63 @@
+{
+  "spec": {
+    "config": "nrx_large_var_mcs_64qam_masking.cfg",
+    "receiver": "neural",
+    "checkpoint": "weights/pretrained/nrx_large_var_mcs_64qam_masking.safetensors",
+    "num_users": 2,
+    "n_size_bwp": 132,
+    "mcs_indices": [
+      1,
+      1
+    ],
+    "snr_mcs_index": 1,
+    "report_user": null,
+    "ebno_db": [
+      1.0
+    ],
+    "batch_size": 30,
+    "max_batches": 500,
+    "target_block_errors": 500,
+    "target_bler": null,
+    "num_iterations": 4,
+    "covariance_samples": 100000,
+    "seed": 42
+  },
+  "results": [
+    {
+      "bits": 36878400,
+      "blocks": 900,
+      "bit_errors": 943193,
+      "block_errors": 512,
+      "crc_successes": 388,
+      "ebno_db": 1.0,
+      "ber": 0.025575757082736777,
+      "bler": 0.5688888888888889,
+      "per_user": [
+        {
+          "user": 0,
+          "mcs_array_index": 1,
+          "bits": 18439200,
+          "blocks": 450,
+          "bit_errors": 387689,
+          "block_errors": 264,
+          "crc_successes": 186,
+          "ber": 0.02102526139962688,
+          "bler": 0.5866666666666667
+        },
+        {
+          "user": 1,
+          "mcs_array_index": 1,
+          "bits": 18439200,
+          "blocks": 450,
+          "bit_errors": 555504,
+          "block_errors": 248,
+          "crc_successes": 202,
+          "ber": 0.030126252765846673,
+          "bler": 0.5511111111111111
+        }
+      ],
+      "elapsed_seconds": 7.866401797160506
+    }
+  ],
+  "complete": true
+}
