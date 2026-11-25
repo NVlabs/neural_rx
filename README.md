@@ -239,3 +239,11 @@ This work is available under the [NVIDIA License](LICENSE.txt).
     year = {2024}
 }
 ```
+
+## Acknowledgement
+
+This work has received financial support from the European Union under
+Grant Agreement 101096379 (CENTRIC). Views and opinions expressed are
+however those of the author(s) only and do not necessarily reflect those of the
+European Union or the European Commission (granting authority). Neither the
+European Union nor the granting authority can be held responsible for them.
